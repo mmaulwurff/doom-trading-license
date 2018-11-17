@@ -1,0 +1,8 @@
+
+alias m8f_tl_init_trade "netevent m8f_tl_init_trade"
+alias m8f_tl_end_trade  "netevent m8f_tl_end_trade"
+
+AddKeySection "Trading License Keys" "m8f_tl_trading_license_keys"
+
+AddMenuKey    "Start trading" "m8f_tl_init_trade"
+AddMenuKey    "Stop  trading" "m8f_tl_end_trade"

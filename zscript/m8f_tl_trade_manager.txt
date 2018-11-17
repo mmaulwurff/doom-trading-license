@@ -1,0 +1,313 @@
+
+class m8f_tl_TradeManager play
+{
+
+  m8f_tl_TradeManager init()
+  {
+    _isLoggingEnabled = true;
+
+    _isStarted        = false;
+    _leftTrader       = null;
+    _leftTraderInfo   = null;
+    _rightTrader      = null;
+    _rightTraderInfo  = null;
+
+    fillCurrencyPriceTable();
+
+    return self;
+  }
+
+  void startTradeFor(string currency, Actor leftTrader, Actor rightTrader)
+  {
+    log(StringStruct.Format("trade started: %s with %s", leftTrader.getTag(), rightTrader.getTag()));
+
+    setUpTraders(leftTrader, rightTrader);
+
+    if (!areTradersValid()) { return; }
+
+    setUpTraderInfos();
+
+    if (!areTraderInfosValid()) { return; }
+
+    //freezeTime();
+
+    refreshItemLists(currency);
+
+    _isStarted = true;
+    _currentCurrency = currency;
+  }
+
+  void startTradeForPlayerAndTarget()
+  {
+    Actor  playerActor = players[consolePlayer].mo;
+    Actor  targetActor = playerActor.AimTarget();
+    string currency    = "Clip";
+    startTradeFor(currency, playerActor, targetActor);
+  }
+
+  void endTrade()
+  {
+    //unfreezeTime();
+
+    _isStarted = false;
+  }
+
+  bool isStarted() const { return _isStarted; }
+
+  string getCurrency() const
+  {
+    return _currentCurrency;
+  }
+
+  int getLeftTraderCashAmount() const
+  {
+    return _leftTrader.CountInv(_currentCurrency);
+  }
+
+  int getRightTraderCashAmount() const
+  {
+    return _rightTrader.CountInv(_currentCurrency);
+  }
+
+  string getLeftTraderName() const
+  {
+    if (!areTradersValid()) { return "invalid"; }
+
+    string name = _leftTrader.GetTag();
+    return name;
+  }
+
+  string getRightTraderName() const
+  {
+    if (!areTradersValid()) { return "invalid"; }
+
+    string name = _rightTrader.GetTag();
+    return name;
+  }
+
+  int getLeftItemsNumber() const
+  {
+    return _leftTradedItems.size();
+  }
+
+  Inventory getLeftSelectedItem(int index) const
+  {
+    if (index > _leftTradedItems.size())
+    {
+      return null;
+    }
+
+    return _leftTradedItems[index];
+  }
+
+  int getRightItemsNumber() const
+  {
+    return _rightTradedItems.size();
+  }
+
+  Inventory getRightSelectedItem(int index) const
+  {
+    if (index > _rightTradedItems.size())
+    {
+      return null;
+    }
+
+    return _rightTradedItems[index];
+  }
+
+  bool isLeftTraderInfiniteMoney() const
+  {
+    return _leftTraderInfo.isInfiniteMoney();
+  }
+
+  bool isRightTraderInfiniteMoney() const
+  {
+    return _rightTraderInfo.isInfiniteMoney();
+  }
+
+  int getPrice(Actor a) const
+  {
+    return _currencyPriceTable.getPrice(_currentCurrency, a.GetClassName());
+  }
+
+  void makeTransaction(bool isLeftToRight, int leftIndex, int rightIndex)
+  {
+    Actor seller;
+    Actor buyer;
+    Actor item;
+    bool  buyerIsInfiniteMoney;
+    if (isLeftToRight)
+    {
+      seller = _leftTrader;
+      buyer  = _rightTrader;
+      buyerIsInfiniteMoney = _rightTraderInfo.isInfiniteMoney();
+      item   = _leftTradedItems[leftIndex];
+    }
+    else
+    {
+      seller = _rightTrader;
+      buyer  = _leftTrader;
+      buyerIsInfiniteMoney = _leftTraderInfo.isInfiniteMoney();
+      item   = _rightTradedItems[rightIndex];
+    }
+
+    string className = item.GetClassName();
+    int    price     = _currencyPriceTable.getPrice(_currentCurrency, className);
+    if (buyer.CountInv(_currentCurrency) < price && !buyerIsInfiniteMoney)
+    {
+      console.printf("Not enough %s!", _currentCurrency);
+      return;
+    }
+
+    seller.TakeInventory(className, 1);
+    buyer.GiveInventory (className, 1);
+
+    seller.GiveInventory(_currentCurrency, price);
+    if (!buyerIsInfiniteMoney)
+    {
+      buyer.TakeInventory(_currentCurrency, price);
+    }
+
+    refreshItemLists(_currentCurrency);
+  }
+
+  // private method section ////////////////////////////////////////////////////
+
+  private void setUpTraders(Actor leftTrader, Actor rightTrader)
+  {
+    _leftTrader  = leftTrader;
+    _rightTrader = rightTrader;
+  }
+
+  private void setUpTraderInfos()
+  {
+    _leftTraderInfo  = m8f_tl_TraderInfo(_leftTrader .FindInventory("m8f_tl_TraderInfo"));
+    _rightTraderInfo = m8f_tl_TraderInfo(_rightTrader.FindInventory("m8f_tl_TraderInfo"));
+  }
+
+  private bool areTradersValid() const
+  {
+    if (_leftTrader == null)
+    {
+      log("Left trader is null!");
+      return false;
+    }
+
+    if (_rightTrader == null)
+    {
+      log("Right trader is null!");
+      return false;
+    }
+
+    return true;
+  }
+
+  private bool areTraderInfosValid() const
+  {
+    if (_leftTraderInfo == null)
+    {
+      log("Left trader has no trader info attached!");
+      return false;
+    }
+
+    if (_rightTraderInfo == null)
+    {
+      log("Right trader has no trader info attached!");
+      return false;
+    }
+
+    return true;
+  }
+
+  private void log(string message) const
+  {
+    if (_isLoggingEnabled)
+    {
+      console.printf(message);
+    }
+  }
+
+  private void freezeTime() const
+  {
+    if (!areTradersValid()) { return; }
+
+    _leftTrader .GiveInventoryType("PowerTimeFreezer");
+    _rightTrader.GiveInventoryType("PowerTimeFreezer");
+  }
+
+  private void unfreezeTime() const
+  {
+    if (!areTradersValid()) { return; }
+
+    _leftTrader .TakeInventory("PowerTimeFreezer", 1);
+    _rightTrader.TakeInventory("PowerTimeFreezer", 1);
+  }
+
+  private void refreshItemLists(string currency)
+  {
+    if (!areTradersValid())     { return; }
+    if (!areTraderInfosValid()) { return; }
+
+    _leftTradedItems.clear();
+    _rightTradedItems.clear();
+
+    let priceTable = _currencyPriceTable.get(currency);
+    if (priceTable == null)
+    {
+      log(String.Format("No price table for currency %s.", currency));
+      return;
+    }
+
+    for (let item = _leftTrader.Inv; item; item = item.Inv)
+    {
+      int price = priceTable.getPrice(item.GetClassName());
+      if (price != m8f_tl_PriceTable.NOT_FOUND)
+      {
+        _leftTradedItems.push(item);
+      }
+    }
+
+    for (let item = _rightTrader.Inv; item; item = item.Inv)
+    {
+      int price = priceTable.getPrice(item.GetClassName());
+      if (price != m8f_tl_PriceTable.NOT_FOUND)
+      {
+        _rightTradedItems.push(item);
+      }
+    }
+  }
+
+  private void fillCurrencyPriceTable()
+  {
+    let clipPriceTable = new("m8f_tl_PriceTable");
+    clipPriceTable.push("RocketLauncher", 200);
+    clipPriceTable.push("Chaingun",       100);
+    clipPriceTable.push("BasicArmor",       1);
+    clipPriceTable.push("Pistol",          15);
+    clipPriceTable.push("Shotgun",         60);
+    clipPriceTable.push("SuperShotgun",   150);
+
+    _currencyPriceTable = new("m8f_tl_CurrencyPriceTable");
+    _currencyPriceTable.push("Clip", clipPriceTable);
+  }
+
+  // private attribute section /////////////////////////////////////////////////
+
+  bool _isLoggingEnabled;
+
+  bool _isStarted;
+
+  Actor _leftTrader;
+  Actor _rightTrader;
+
+  m8f_tl_TraderInfo _leftTraderInfo;
+  m8f_tl_TraderInfo _rightTraderInfo;
+
+  m8f_tl_CurrencyPriceTable _currencyPriceTable;
+
+  Array<Inventory> _leftTradedItems;
+  Array<Inventory> _rightTradedItems;
+
+  string _currentCurrency;
+
+} // class m8f_tl_TradeManager

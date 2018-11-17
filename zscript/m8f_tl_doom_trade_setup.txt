@@ -1,0 +1,31 @@
+
+class m8f_tl_DoomTradeSetup : EventHandler
+{
+
+  override void WorldThingSpawned(WorldEvent event)
+  {
+    Actor thing = event.thing;
+    if (thing == null) { return; }
+
+    string currency    = "Clip";
+    double priceFactor = 1.0;
+
+    if      (thing is "DoomPlayer") { MakeTrader(thing, currency, priceFactor, false); }
+    else if (thing is "DoomImp")
+    {
+      MakeTrader(thing, currency, priceFactor, true );
+      thing.GiveInventory("Pistol", 1);
+      thing.GiveInventory("Shotgun", 1);
+      thing.GiveInventory("SuperShotgun", 1);
+    }
+  }
+
+  // private function section
+
+  private static void Maketrader(Actor actor, string currency, double priceFactor, bool isInfiniteMoney)
+  {
+    let traderInfo = m8f_tl_TraderInfo(actor.GiveInventoryType("m8f_tl_TraderInfo"));
+    traderInfo.init(currency, priceFactor, isInfiniteMoney);
+  }
+
+} // class m8f_tl_DoomPriceGiver

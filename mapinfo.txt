@@ -1,0 +1,4 @@
+gameinfo
+{
+  AddEventHandlers = "m8f_tl_DoomTradeSetup", "m8f_tl_KeyboardHandler"
+}

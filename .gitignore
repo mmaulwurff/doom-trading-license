@@ -1,0 +1,12 @@
+*
+!*/
+*/*
+
+!.gitignore
+
+!**.txt
+!**.md
+!**.sh
+!**.png
+
+changelog.txt
