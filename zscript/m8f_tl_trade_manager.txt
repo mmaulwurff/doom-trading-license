@@ -138,6 +138,8 @@ class m8f_tl_TradeManager play
     bool  buyerIsInfiniteMoney;
     if (isLeftToRight)
     {
+      if (!(0 <= leftIndex && leftIndex < _leftTradedItems.size())) { return; }
+
       seller = _leftTrader;
       buyer  = _rightTrader;
       buyerIsInfiniteMoney = _rightTraderInfo.isInfiniteMoney();
@@ -145,6 +147,8 @@ class m8f_tl_TradeManager play
     }
     else
     {
+      if (!(0 <= rightIndex && rightIndex < _rightTradedItems.size())) { return; }
+
       seller = _rightTrader;
       buyer  = _leftTrader;
       buyerIsInfiniteMoney = _leftTraderInfo.isInfiniteMoney();
@@ -260,6 +264,8 @@ class m8f_tl_TradeManager play
 
     for (let item = _leftTrader.Inv; item; item = item.Inv)
     {
+      if (item.amount == 0) { continue; }
+
       int price = priceTable.getPrice(item.GetClassName());
       if (price != m8f_tl_PriceTable.NOT_FOUND)
       {
@@ -269,6 +275,8 @@ class m8f_tl_TradeManager play
 
     for (let item = _rightTrader.Inv; item; item = item.Inv)
     {
+      if (item.amount == 0) { continue; }
+
       int price = priceTable.getPrice(item.GetClassName());
       if (price != m8f_tl_PriceTable.NOT_FOUND)
       {

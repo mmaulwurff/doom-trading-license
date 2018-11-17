@@ -28,7 +28,7 @@ class m8f_tl_KeyboardHandler : EventHandler
   override bool UiProcess(UiEvent event)
   {
     int type = event.type;
-    if (type != UiEvent.Type_KeyDown) { return true; }
+    if (type != UiEvent.Type_KeyDown && type != UiEvent.Type_KeyRepeat) { return true; }
 
     int key = event.keyChar;
 
