@@ -7,14 +7,14 @@ class m8f_tl_ScreenSize
 
 class m8f_tl_TradeView
 {
-  const leftTraderX  =  80;
-  const rightTraderX = 240;
+  const leftTraderX  = 160;
+  const rightTraderX = 480;
 
-  const namesY     =   4;
-  const namesColor = Font.CR_Gray;
-  const itemsColor = Font.CR_Blue;
+  const namesY      = 10;
+  const namesColor  = Font.CR_Gray;
+  const itemsColor  = Font.CR_Blue;
   const itemsColorSelected = Font.CR_Cyan;
-  const itemsYStart = 30;
+  const itemsYStart = 40;
 
   m8f_tl_TradeView init(m8f_tl_TradeManager tradeManager)
   {
@@ -63,8 +63,8 @@ class m8f_tl_TradeView
     int virtualWidth;
     int virtualHeight;
 
-    int targetWidth  = 320;
-    int targetHeight = 200;
+    int targetWidth  = 640;
+    int targetHeight = 400;
     double targetAspectRatio = double(targetWidth) / targetHeight;
     double screenAspectRatio = Screen.GetAspectRatio();
 
@@ -192,11 +192,11 @@ class m8f_tl_TradeView
   {
     if (_isLeftSelected)
     {
-      _leftSelectedIndex = min(_leftSelectedIndex + 1, _tradeManager.getLeftTrader().getItemsNumber() - 1);
+      _leftSelectedIndex = (_leftSelectedIndex + 1) % _tradeManager.getLeftTrader().getItemsNumber();
     }
     else
     {
-      _rightSelectedIndex = min(_rightSelectedIndex + 1, _tradeManager.getRightTrader().getItemsNumber() - 1);
+      _rightSelectedIndex = (_rightSelectedIndex + 1) % _tradeManager.getRightTrader().getItemsNumber();
     }
   }
 
@@ -204,11 +204,13 @@ class m8f_tl_TradeView
   {
     if (_isLeftSelected)
     {
-      _leftSelectedIndex = max(_leftSelectedIndex - 1, 0);
+      int number = _tradeManager.getLeftTrader().getItemsNumber();
+      _leftSelectedIndex = (_leftSelectedIndex - 1 + number) % number;
     }
     else
     {
-      _rightSelectedIndex = max(_rightSelectedIndex - 1, 0);
+      int number = _tradeManager.getRightTrader().getItemsNumber();
+      _rightSelectedIndex = (_rightSelectedIndex - 1 + number) % number;
     }
   }
 
