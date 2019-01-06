@@ -7,15 +7,20 @@ class m8f_tl_ScreenSize
 
 class m8f_tl_TradeView
 {
-  const leftTraderX  = 160;
-  const rightTraderX = 480;
-
   const namesY      = 10;
   const namesColor  = Font.CR_Gray;
   const itemsColor  = Font.CR_Blue;
   const itemsColorSelected = Font.CR_Cyan;
   const itemsYStart = 50;
-  const listSize    = 3;
+  const listSize    = 8;
+
+  const targetWidth  = 640;
+  const targetHeight = 400;
+
+  const leftTraderX  = targetWidth / 4;
+  const rightTraderX = targetWidth / 4 * 3;
+
+  const listWidthHalf = targetWidth / 4 - 40;
 
   m8f_tl_TradeView init(m8f_tl_TradeManager tradeManager)
   {
@@ -60,8 +65,6 @@ class m8f_tl_TradeView
     int virtualWidth;
     int virtualHeight;
 
-    int targetWidth  = 640;
-    int targetHeight = 400;
     double targetAspectRatio = double(targetWidth) / targetHeight;
     double screenAspectRatio = Screen.GetAspectRatio();
 
@@ -165,9 +168,25 @@ class m8f_tl_TradeView
       int    color      = (i == selectedIndex && isActive) ? itemsColorSelected : itemsColor;
       string amount     = (item.amount == 1) ? "" : String.Format(" (x%d)", item.amount);
       int    price      = _tradeManager.getPrice(item);
-      string itemString = String.Format("%s%s: %d", item.GetTag(), amount, price);
+      string itemString = String.Format("%s%s", item.GetTag(), amount);
+      string itemPrice  = String.Format("%d", price);
 
-      drawTextCenter(itemString, color, f, x, y, screenSize.width, screenSize.height);
+      Screen.DrawText( f
+                     , color
+                     , x - listWidthHalf
+                     , y
+                     , itemString
+                     , DTA_VirtualWidth  , screenSize.width
+                     , DTA_VirtualHeight , screenSize.height
+                     );
+      Screen.DrawText( f
+                     , color
+                     , x + listWidthHalf - f.StringWidth(itemPrice)
+                     , y
+                     , itemPrice
+                     , DTA_VirtualWidth  , screenSize.width
+                     , DTA_VirtualHeight , screenSize.height
+                     );
 
       y += lineHeight;
     }

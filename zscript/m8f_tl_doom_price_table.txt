@@ -13,6 +13,7 @@ class m8f_tl_DoomPriceTable : m8f_tl_CPT
     clipPriceTable.push("SuperShotgun",   150);
     clipPriceTable.push("BFG9000",        400);
     clipPriceTable.push("PlasmaRifle",    300);
+    clipPriceTable.push("Chainsaw",       180);
 
     push("Clip", clipPriceTable);
 
