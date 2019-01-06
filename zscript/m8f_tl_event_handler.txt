@@ -4,8 +4,9 @@ class m8f_tl_KeyboardHandler : EventHandler
 
   override void OnRegister()
   {
-    _tradeManager = new("m8f_tl_TradeManager").init();
-    _tradeView    = new("m8f_tl_TradeView").init(_tradeManager);
+    _priceTable   = new("m8f_tl_DoomPriceTable").init();
+    _tradeManager = new("m8f_tl_TradeManager"  ).init(_priceTable);
+    _tradeView    = new("m8f_tl_TradeView"     ).init(_tradeManager);
   }
 
   override void NetworkProcess(ConsoleEvent event)
@@ -67,6 +68,7 @@ class m8f_tl_KeyboardHandler : EventHandler
 
   // private attribute section /////////////////////////////////////////////////
 
+  private m8f_tl_CPT          _priceTable;
   private m8f_tl_TradeManager _tradeManager;
   private m8f_tl_TradeView    _tradeView;
 

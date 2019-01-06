@@ -31,12 +31,6 @@ class m8f_tl_TradeView
     return self;
   }
 
-  void prepareShowing()
-  {
-    _leftItemShift  = 0;
-    _rightItemShift = 0;
-  }
-
   void show()
   {
     let virtualScreenSize = calculateVirtualScreenSize();

@@ -1,0 +1,22 @@
+
+class m8f_tl_DoomPriceTable : m8f_tl_CPT
+{
+
+  m8f_tl_DoomPriceTable init()
+  {
+    let clipPriceTable = new("m8f_tl_PriceTable");
+    clipPriceTable.push("RocketLauncher", 200);
+    clipPriceTable.push("Chaingun",       100);
+    clipPriceTable.push("BasicArmor",       1);
+    clipPriceTable.push("Pistol",          15);
+    clipPriceTable.push("Shotgun",         60);
+    clipPriceTable.push("SuperShotgun",   150);
+    clipPriceTable.push("BFG9000",        400);
+    clipPriceTable.push("PlasmaRifle",    300);
+
+    push("Clip", clipPriceTable);
+
+    return self;
+  }
+
+} // class m8f_tl_DoomPriceTable
