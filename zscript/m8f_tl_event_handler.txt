@@ -5,7 +5,7 @@ class m8f_tl_KeyboardHandler : EventHandler
   override void OnRegister()
   {
     _tradeManager = new("m8f_tl_TradeManager").init();
-    _tradeView    = new("m8f_tl_TradeView").init();
+    _tradeView    = new("m8f_tl_TradeView").init(_tradeManager);
   }
 
   override void NetworkProcess(ConsoleEvent event)
@@ -43,7 +43,7 @@ class m8f_tl_KeyboardHandler : EventHandler
       break;
 
     case UiEvent.Key_Down:
-      _tradeView.moveItemSelectionDown(_tradeManager);
+      _tradeView.moveItemSelectionDown();
       break;
 
     case UiEvent.Key_Up:
@@ -60,7 +60,9 @@ class m8f_tl_KeyboardHandler : EventHandler
 
   override void RenderOverlay(RenderEvent event)
   {
-    _tradeView.show(_tradeManager);
+    if (!_tradeManager.isStarted()) { return; }
+
+    _tradeView.show();
   }
 
   // private attribute section /////////////////////////////////////////////////

@@ -15,20 +15,9 @@ class m8f_tl_TraderInfo : Inventory
     return self;
   }
 
-  string getCurrency() const
-  {
-    return _currency;
-  }
-
-  double getPriceFactor() const
-  {
-    return _priceFactor;
-  }
-
-  bool isInfiniteMoney() const
-  {
-    return _isInfiniteMoney;
-  }
+  string getCurrency    () const { return _currency;        }
+  double getPriceFactor () const { return _priceFactor;     }
+  bool   isInfiniteMoney() const { return _isInfiniteMoney; }
 
   // private attribute section
 

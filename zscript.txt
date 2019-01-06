@@ -5,6 +5,7 @@ version "3.2.0"
 #include "zscript/m8f_tl_price_table.txt"
 
 #include "zscript/m8f_tl_trade_manager.txt"
+#include "zscript/m8f_tl_trader.txt"
 #include "zscript/m8f_tl_trade_view.txt"
 
 #include "zscript/m8f_tl_event_handler.txt"

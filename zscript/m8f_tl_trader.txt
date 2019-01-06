@@ -1,0 +1,73 @@
+
+class m8f_tl_Trader
+{
+
+  // public method section /////////////////////////////////////////////////////
+
+  m8f_tl_Trader init(string currency, Actor trader, m8f_tl_CPT currencyPriceTable)
+  {
+    _currency = currency;
+    _trader   = trader;
+    _currencyPriceTable = currencyPriceTable;
+
+    if (_trader == null) { return reportInitError("Trader is null!"); }
+
+    _traderInfo = m8f_tl_TraderInfo(_trader.FindInventory("m8f_tl_TraderInfo"));
+    if (_traderInfo == null) { return reportInitError("Trader info is null!"); }
+
+    refreshItemList();
+
+    return self;
+  }
+
+  // read access section ///////////////////////////////////////////////////////
+
+  string getName        () const { return _trader.GetTag(); }
+  int    getCashAmount  () const { return _trader.CountInv(_currency); }
+  int    getItemsNumber () const { return _tradedItems.size(); }
+  bool   isInfiniteMoney() const { return _traderInfo.isInfiniteMoney(); }
+  string getCurrency    () const { return _currency; }
+
+  Inventory getItem(int i) const { return (i > _tradedItems.size()) ? null : _tradedItems[i]; }
+
+  Actor getActor() const { return _trader; }
+
+  // control section ///////////////////////////////////////////////////////////
+
+  void refreshItemList()
+  {
+    _tradedItems.clear();
+
+    let priceTable = _currencyPriceTable.get(_currency);
+    if (priceTable == null)
+    {
+      console.printf("No price table for currency %s.", _currency);
+    }
+
+    for (let item = _trader.Inv; item; item = item.Inv)
+    {
+      if (item.amount == 0) { continue; }
+
+      int price = priceTable.getPrice(item.GetClassName());
+      if (price == m8f_tl_PriceTable.NOT_FOUND) { continue; }
+
+      _tradedItems.push(item);
+    }
+  }
+
+  play void freezeTime  () { _trader.GiveInventoryType("PowerTimeFreezer"   ); }
+  play void unfreezeTime() { _trader.TakeInventory    ("PowerTimeFreezer", 1); }
+
+  // private method section ////////////////////////////////////////////////////
+
+  private m8f_tl_Trader reportInitError(string message) { console.printf(message); return null; }
+
+  // private attribute section /////////////////////////////////////////////////
+
+  private Actor             _trader;
+  private m8f_tl_TraderInfo _traderInfo;
+  private string            _currency;
+  private Array<Inventory>  _tradedItems;
+  private m8f_tl_CurrencyPriceTable _currencyPriceTable;
+
+} // class m8f_tl_Trader

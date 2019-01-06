@@ -1,6 +1,10 @@
 
+class m8f_tl_CPT : m8f_tl_CurrencyPriceTable {}
+
 class m8f_tl_TradeManager play
 {
+
+  // public: ///////////////////////////////////////////////////////////////////
 
   m8f_tl_TradeManager init()
   {
@@ -8,9 +12,7 @@ class m8f_tl_TradeManager play
 
     _isStarted        = false;
     _leftTrader       = null;
-    _leftTraderInfo   = null;
     _rightTrader      = null;
-    _rightTraderInfo  = null;
 
     fillCurrencyPriceTable();
 
@@ -21,20 +23,16 @@ class m8f_tl_TradeManager play
   {
     log(StringStruct.Format("trade started: %s with %s", leftTrader.getTag(), rightTrader.getTag()));
 
-    setUpTraders(leftTrader, rightTrader);
+    _leftTrader  = new("m8f_tl_Trader").init(currency,  leftTrader, _currencyPriceTable);
+    _rightTrader = new("m8f_tl_Trader").init(currency, rightTrader, _currencyPriceTable);
 
-    if (!areTradersValid()) { return; }
-
-    setUpTraderInfos();
-
-    if (!areTraderInfosValid()) { return; }
+    bool isSuccess = (_leftTrader != null && _rightTrader != null);
+    if (!isSuccess) { return; }
 
     //freezeTime();
 
-    refreshItemLists(currency);
-
     _isStarted = true;
-    _currentCurrency = currency;
+    _currency  = currency;
   }
 
   void startTradeForPlayerAndTarget()
@@ -52,82 +50,15 @@ class m8f_tl_TradeManager play
     _isStarted = false;
   }
 
-  bool isStarted() const { return _isStarted; }
+  bool   isStarted()   const { return _isStarted; }
+  string getCurrency() const { return _currency;  }
 
-  string getCurrency() const
-  {
-    return _currentCurrency;
-  }
-
-  int getLeftTraderCashAmount() const
-  {
-    return _leftTrader.CountInv(_currentCurrency);
-  }
-
-  int getRightTraderCashAmount() const
-  {
-    return _rightTrader.CountInv(_currentCurrency);
-  }
-
-  string getLeftTraderName() const
-  {
-    if (!areTradersValid()) { return "invalid"; }
-
-    string name = _leftTrader.GetTag();
-    return name;
-  }
-
-  string getRightTraderName() const
-  {
-    if (!areTradersValid()) { return "invalid"; }
-
-    string name = _rightTrader.GetTag();
-    return name;
-  }
-
-  int getLeftItemsNumber() const
-  {
-    return _leftTradedItems.size();
-  }
-
-  Inventory getLeftSelectedItem(int index) const
-  {
-    if (index > _leftTradedItems.size())
-    {
-      return null;
-    }
-
-    return _leftTradedItems[index];
-  }
-
-  int getRightItemsNumber() const
-  {
-    return _rightTradedItems.size();
-  }
-
-  Inventory getRightSelectedItem(int index) const
-  {
-    if (index > _rightTradedItems.size())
-    {
-      return null;
-    }
-
-    return _rightTradedItems[index];
-  }
-
-  bool isLeftTraderInfiniteMoney() const
-  {
-    return _leftTraderInfo.isInfiniteMoney();
-  }
-
-  bool isRightTraderInfiniteMoney() const
-  {
-    return _rightTraderInfo.isInfiniteMoney();
-  }
+  m8f_tl_Trader getLeftTrader()  const { return _leftTrader;  }
+  m8f_tl_Trader getRightTrader() const { return _rightTrader; }
 
   int getPrice(Actor a) const
   {
-    return _currencyPriceTable.getPrice(_currentCurrency, a.GetClassName());
+    return _currencyPriceTable.getPrice(_currency, a.GetClassName());
   }
 
   void makeTransaction(bool isLeftToRight, int leftIndex, int rightIndex)
@@ -138,151 +69,49 @@ class m8f_tl_TradeManager play
     bool  buyerIsInfiniteMoney;
     if (isLeftToRight)
     {
-      if (!(0 <= leftIndex && leftIndex < _leftTradedItems.size())) { return; }
+      if (!(0 <= leftIndex && leftIndex < _leftTrader.getItemsNumber())) { return; }
 
-      seller = _leftTrader;
-      buyer  = _rightTrader;
-      buyerIsInfiniteMoney = _rightTraderInfo.isInfiniteMoney();
-      item   = _leftTradedItems[leftIndex];
+      seller = _leftTrader.getActor();
+      buyer  = _rightTrader.getActor();
+      buyerIsInfiniteMoney = _rightTrader.isInfiniteMoney();
+      item   = _leftTrader.getItem(leftIndex);
     }
     else
     {
-      if (!(0 <= rightIndex && rightIndex < _rightTradedItems.size())) { return; }
+      if (!(0 <= rightIndex && rightIndex < _rightTrader.getItemsNumber())) { return; }
 
-      seller = _rightTrader;
-      buyer  = _leftTrader;
-      buyerIsInfiniteMoney = _leftTraderInfo.isInfiniteMoney();
-      item   = _rightTradedItems[rightIndex];
+      seller = _rightTrader.getActor();
+      buyer  = _leftTrader.getACtor();
+      buyerIsInfiniteMoney = _leftTrader.isInfiniteMoney();
+      item   = _rightTrader.getItem(rightIndex);
     }
 
     string className = item.GetClassName();
-    int    price     = _currencyPriceTable.getPrice(_currentCurrency, className);
-    if (buyer.CountInv(_currentCurrency) < price && !buyerIsInfiniteMoney)
+    int    price     = _currencyPriceTable.getPrice(_currency, className);
+    if (buyer.CountInv(_currency) < price && !buyerIsInfiniteMoney)
     {
-      console.printf("Not enough %s!", _currentCurrency);
+      console.printf("Not enough %s!", _currency);
       return;
     }
 
     seller.TakeInventory(className, 1);
     buyer.GiveInventory (className, 1);
 
-    seller.GiveInventory(_currentCurrency, price);
+    seller.GiveInventory(_currency, price);
     if (!buyerIsInfiniteMoney)
     {
-      buyer.TakeInventory(_currentCurrency, price);
+      buyer.TakeInventory(_currency, price);
     }
 
-    refreshItemLists(_currentCurrency);
+    _leftTrader.refreshItemList();
+    _rightTrader.refreshItemList();
   }
 
-  // private method section ////////////////////////////////////////////////////
-
-  private void setUpTraders(Actor leftTrader, Actor rightTrader)
-  {
-    _leftTrader  = leftTrader;
-    _rightTrader = rightTrader;
-  }
-
-  private void setUpTraderInfos()
-  {
-    _leftTraderInfo  = m8f_tl_TraderInfo(_leftTrader .FindInventory("m8f_tl_TraderInfo"));
-    _rightTraderInfo = m8f_tl_TraderInfo(_rightTrader.FindInventory("m8f_tl_TraderInfo"));
-  }
-
-  private bool areTradersValid() const
-  {
-    if (_leftTrader == null)
-    {
-      log("Left trader is null!");
-      return false;
-    }
-
-    if (_rightTrader == null)
-    {
-      log("Right trader is null!");
-      return false;
-    }
-
-    return true;
-  }
-
-  private bool areTraderInfosValid() const
-  {
-    if (_leftTraderInfo == null)
-    {
-      log("Left trader has no trader info attached!");
-      return false;
-    }
-
-    if (_rightTraderInfo == null)
-    {
-      log("Right trader has no trader info attached!");
-      return false;
-    }
-
-    return true;
-  }
+  // private: //////////////////////////////////////////////////////////////////
 
   private void log(string message) const
   {
-    if (_isLoggingEnabled)
-    {
-      console.printf(message);
-    }
-  }
-
-  private void freezeTime() const
-  {
-    if (!areTradersValid()) { return; }
-
-    _leftTrader .GiveInventoryType("PowerTimeFreezer");
-    _rightTrader.GiveInventoryType("PowerTimeFreezer");
-  }
-
-  private void unfreezeTime() const
-  {
-    if (!areTradersValid()) { return; }
-
-    _leftTrader .TakeInventory("PowerTimeFreezer", 1);
-    _rightTrader.TakeInventory("PowerTimeFreezer", 1);
-  }
-
-  private void refreshItemLists(string currency)
-  {
-    if (!areTradersValid())     { return; }
-    if (!areTraderInfosValid()) { return; }
-
-    _leftTradedItems.clear();
-    _rightTradedItems.clear();
-
-    let priceTable = _currencyPriceTable.get(currency);
-    if (priceTable == null)
-    {
-      log(String.Format("No price table for currency %s.", currency));
-      return;
-    }
-
-    for (let item = _leftTrader.Inv; item; item = item.Inv)
-    {
-      if (item.amount == 0) { continue; }
-
-      int price = priceTable.getPrice(item.GetClassName());
-      if (price != m8f_tl_PriceTable.NOT_FOUND)
-      {
-        _leftTradedItems.push(item);
-      }
-    }
-
-    for (let item = _rightTrader.Inv; item; item = item.Inv)
-    {
-      if (item.amount == 0) { continue; }
-
-      int price = priceTable.getPrice(item.GetClassName());
-      if (price != m8f_tl_PriceTable.NOT_FOUND)
-      {
-        _rightTradedItems.push(item);
-      }
-    }
+    if (_isLoggingEnabled) { console.printf(message); }
   }
 
   private void fillCurrencyPriceTable()
@@ -295,27 +124,17 @@ class m8f_tl_TradeManager play
     clipPriceTable.push("Shotgun",         60);
     clipPriceTable.push("SuperShotgun",   150);
 
-    _currencyPriceTable = new("m8f_tl_CurrencyPriceTable");
+    _currencyPriceTable = new("m8f_tl_CPT");
     _currencyPriceTable.push("Clip", clipPriceTable);
   }
 
-  // private attribute section /////////////////////////////////////////////////
+  // private: attributes ///////////////////////////////////////////////////////
 
-  bool _isLoggingEnabled;
-
-  bool _isStarted;
-
-  Actor _leftTrader;
-  Actor _rightTrader;
-
-  m8f_tl_TraderInfo _leftTraderInfo;
-  m8f_tl_TraderInfo _rightTraderInfo;
-
-  m8f_tl_CurrencyPriceTable _currencyPriceTable;
-
-  Array<Inventory> _leftTradedItems;
-  Array<Inventory> _rightTradedItems;
-
-  string _currentCurrency;
+  bool          _isLoggingEnabled;
+  bool          _isStarted;
+  m8f_tl_Trader _leftTrader;
+  m8f_tl_Trader _rightTrader;
+  m8f_tl_CPT    _currencyPriceTable;
+  string        _currency;
 
 } // class m8f_tl_TradeManager
