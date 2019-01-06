@@ -14,7 +14,8 @@ class m8f_tl_TradeView
   const namesColor  = Font.CR_Gray;
   const itemsColor  = Font.CR_Blue;
   const itemsColorSelected = Font.CR_Cyan;
-  const itemsYStart = 40;
+  const itemsYStart = 50;
+  const listSize    = 3;
 
   m8f_tl_TradeView init(m8f_tl_TradeManager tradeManager)
   {
@@ -42,6 +43,7 @@ class m8f_tl_TradeView
               , virtualScreenSize
               , _leftSelectedIndex
               , _isLeftSelected
+              , _leftItemShift
               );
 
     showTrader( _tradeManager.getRightTrader()
@@ -49,6 +51,7 @@ class m8f_tl_TradeView
               , virtualScreenSize
               , _rightSelectedIndex
               , !_isLeftSelected
+              , _rightItemShift
               );
   }
 
@@ -102,6 +105,7 @@ class m8f_tl_TradeView
                          , m8f_tl_ScreenSize screenSize
                          , int               selectedIndex
                          , bool              isActive
+                         , int               itemShift
                          )
   {
     double titleY     = namesY;
@@ -133,7 +137,7 @@ class m8f_tl_TradeView
                     );
     }
 
-    drawItemList(x, itemsYStart, trader, f, screenSize, lineHeight, selectedIndex, isActive);
+    drawItemList(x, itemsYStart, trader, f, screenSize, lineHeight, selectedIndex, isActive, itemShift);
   }
 
   void drawItemList( double x
@@ -144,11 +148,18 @@ class m8f_tl_TradeView
                    , double lineHeight
                    , int    selectedIndex
                    , bool   isActive
+                   , int    itemShift
                    )
   {
+    if (itemShift > 0)
+    {
+      drawTextCenter("...", itemsColor, f, x, y, screenSize.width, screenSize.height);
+    }
+    y += lineHeight;
+
     int itemsNumber = trader.getItemsNumber();
 
-    for (int i = 0; i < itemsNumber; ++i)
+    for (int i = itemShift; i < itemsNumber && i < itemShift + listSize; ++i)
     {
       let    item       = trader.getItem(i);
       int    color      = (i == selectedIndex && isActive) ? itemsColorSelected : itemsColor;
@@ -160,6 +171,12 @@ class m8f_tl_TradeView
 
       y += lineHeight;
     }
+
+    if (itemShift + listSize < itemsNumber)
+    {
+      drawTextCenter("...", itemsColor, f, x, y, screenSize.width, screenSize.height);
+    }
+    y += lineHeight;
   }
 
   bool isLeftSelected() const
@@ -186,11 +203,13 @@ class m8f_tl_TradeView
   {
     if (_isLeftSelected)
     {
-      _leftSelectedIndex = (_leftSelectedIndex + 1) % _tradeManager.getLeftTrader().getItemsNumber();
+      int number = _tradeManager.getLeftTrader().getItemsNumber();
+      [_leftSelectedIndex, _leftItemShift] = makeMoveSelectionDown(_leftSelectedIndex, _leftItemShift, number);
     }
     else
     {
-      _rightSelectedIndex = (_rightSelectedIndex + 1) % _tradeManager.getRightTrader().getItemsNumber();
+      int number = _tradeManager.getRightTrader().getItemsNumber();
+      [_rightSelectedIndex, _rightItemShift] = makeMoveSelectionDown(_rightSelectedIndex, _rightItemShift, number);
     }
   }
 
@@ -199,12 +218,12 @@ class m8f_tl_TradeView
     if (_isLeftSelected)
     {
       int number = _tradeManager.getLeftTrader().getItemsNumber();
-      _leftSelectedIndex = (_leftSelectedIndex - 1 + number) % number;
+      [_leftSelectedIndex, _leftItemShift] = makeMoveSelectionUp(_leftSelectedIndex, _leftItemShift, number);
     }
     else
     {
       int number = _tradeManager.getRightTrader().getItemsNumber();
-      _rightSelectedIndex = (_rightSelectedIndex - 1 + number) % number;
+      [_rightSelectedIndex, _rightItemShift] = makeMoveSelectionUp(_rightSelectedIndex, _rightItemShift, number);
     }
   }
 
@@ -229,6 +248,42 @@ class m8f_tl_TradeView
                    , DTA_VirtualWidth  , virtualWidth
                    , DTA_VirtualHeight , virtualHeight
                    );
+  }
+
+  // return selectedIndex, itemShift
+  private int, int makeMoveSelectionDown(int selectedIndex, int itemShift, int itemNumber)
+  {
+    selectedIndex = (selectedIndex + 1) % itemNumber;
+
+    int limit = itemShift + listSize;
+    if (selectedIndex >= limit)
+    {
+      ++itemShift;
+    }
+    else if (selectedIndex == 0)
+    {
+      itemShift = 0;
+    }
+
+    return selectedIndex, itemShift;
+  }
+
+  // return selectedIndex, itemShift
+  private int, int makeMoveSelectionUp(int selectedIndex, int itemShift, int itemNumber)
+  {
+    selectedIndex = (selectedIndex - 1 + itemNumber) % itemNumber;
+
+    int limit = itemShift + listSize;
+    if (selectedIndex < itemShift)
+    {
+      --itemShift;
+    }
+    else if (selectedIndex >= limit)
+    {
+      itemShift = itemNumber - listSize;
+    }
+
+    return selectedIndex, itemShift;
   }
 
   // private attribute section /////////////////////////////////////////////////

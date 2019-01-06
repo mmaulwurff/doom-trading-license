@@ -17,6 +17,8 @@ class m8f_tl_DoomTradeSetup : EventHandler
       thing.GiveInventory("Pistol", 1);
       thing.GiveInventory("Shotgun", 1);
       thing.GiveInventory("SuperShotgun", 1);
+      thing.GiveInventory("Chaingun", 1);
+      thing.GiveInventory("BFG9000", 1);
     }
   }
 
