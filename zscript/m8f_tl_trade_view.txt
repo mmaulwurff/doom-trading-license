@@ -12,7 +12,7 @@ class m8f_tl_TradeView
   const itemsColor  = Font.CR_Blue;
   const itemsColorSelected = Font.CR_Cyan;
   const itemsYStart = 50;
-  const listSize    = 10;
+  const listSize    =  9;
 
   const targetWidth  = 640;
   const targetHeight = 400;
@@ -20,8 +20,8 @@ class m8f_tl_TradeView
   const leftTraderX  = targetWidth / 4;
   const rightTraderX = targetWidth / 4 * 3;
 
-  const listWidthHalf = targetWidth / 4 - 15;
-  const lineHeight    = 35;
+  const listWidthHalf  = targetWidth / 4 - 15;
+  const iconLineHeight = 30;
 
   m8f_tl_TradeView init(m8f_tl_TradeManager tradeManager)
   {
@@ -114,6 +114,7 @@ class m8f_tl_TradeView
   {
     double titleY     = namesY;
     Font   f          = SmallFont;
+    double lineHeight = f.GetHeight() * 1.2;
 
     drawTextCenter( trader.getName()
                   , namesColor
@@ -140,7 +141,7 @@ class m8f_tl_TradeView
                     );
     }
 
-    drawItemList(x, itemsYStart, trader, f, screenSize, lineHeight, selectedIndex, isActive, itemShift);
+    drawItemList(x, itemsYStart, trader, f, screenSize, iconLineHeight, selectedIndex, isActive, itemShift);
   }
 
   void drawItemList( double x

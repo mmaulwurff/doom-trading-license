@@ -28,6 +28,11 @@ class m8f_tl_DoomPriceTable : m8f_tl_CPT
     goldPriceTable.push("ArtiFly",             1);
     goldPriceTable.push("ArtiInvulnerability", 1);
     goldPriceTable.push("ArtiTorch",           1);
+    goldPriceTable.push("ArtiEgg",             1);
+    goldPriceTable.push("ArtiTeleport",        1);
+    goldPriceTable.push("KeyGreen",            1);
+    goldPriceTable.push("KeyBlue",             1);
+    goldPriceTable.push("KeyYellow",           1);
 
     return self;
   }
