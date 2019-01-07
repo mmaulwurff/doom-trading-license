@@ -38,6 +38,24 @@ class m8f_tl_TradeView
     return self;
   }
 
+  void updateView()
+  {
+    int leftN  = _tradeManager.getLeftTrader().getItemsNumber();
+    int rightN = _tradeManager.getRightTrader().getItemsNumber();
+
+    if (_isLeftSelected)
+    {
+      if (_leftSelectedIndex  >= leftN)  { _leftSelectedIndex  = leftN  - 1; }
+    }
+    else
+    {
+      if (_rightSelectedIndex >= rightN) { _rightSelectedINdex = rightN - 1; }
+    }
+
+    _leftItemShift  = clamp(0, leftN  - listSize, _leftItemShift );
+    _rightItemShift = clamp(0, rightN - listSize, _rightItemShift);
+  }
+
   void show()
   {
     let virtualScreenSize = calculateVirtualScreenSize();

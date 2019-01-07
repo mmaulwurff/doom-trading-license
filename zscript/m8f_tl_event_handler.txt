@@ -81,6 +81,7 @@ class m8f_tl_KeyboardHandler : EventHandler
                                  , _tradeView.getLeftSelectedIndex()
                                  , _tradeView.getRightSelectedIndex()
                                  );
+    _tradeView.updateView();
   }
 
   // private attribute section /////////////////////////////////////////////////
