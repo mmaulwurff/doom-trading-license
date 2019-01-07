@@ -37,9 +37,14 @@ class m8f_tl_TradeManager play
 
   void startTradeForPlayerAndTarget()
   {
-    Actor  playerActor = players[consolePlayer].mo;
-    Actor  targetActor = playerActor.AimTarget();
-    string currency    = "Clip";
+    Actor playerActor = players[consolePlayer].mo;
+    if (playerActor == null) { return; }
+
+    Actor targetActor = playerActor.AimTarget();
+    if (targetActor == null) { return; }
+
+    //string currency = "Clip";
+    string currency = "GoldWandAmmo";
     startTradeFor(currency, playerActor, targetActor);
   }
 

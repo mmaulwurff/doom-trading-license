@@ -6,11 +6,11 @@ class m8f_tl_Trader
 
   m8f_tl_Trader init(string currency, Actor trader, m8f_tl_CPT currencyPriceTable)
   {
+    if (trader == null) { return reportInitError("Trader is null!"); }
+
     _currency = currency;
     _trader   = trader;
     _currencyPriceTable = currencyPriceTable;
-
-    if (_trader == null) { return reportInitError("Trader is null!"); }
 
     _traderInfo = m8f_tl_TraderInfo(_trader.FindInventory("m8f_tl_TraderInfo"));
     if (_traderInfo == null) { return reportInitError("Trader info is null!"); }

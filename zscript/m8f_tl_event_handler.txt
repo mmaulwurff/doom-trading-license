@@ -1,6 +1,19 @@
 
 class m8f_tl_KeyboardHandler : EventHandler
 {
+  // public:
+
+  void startTrade()
+  {
+    _tradeManager.startTradeForPlayerAndTarget();
+  }
+
+  void endTrade()
+  {
+    _tradeManager.endTrade();
+  }
+
+  // public: EventHandler
 
   override void OnRegister()
   {
@@ -13,15 +26,9 @@ class m8f_tl_KeyboardHandler : EventHandler
   {
     string eventName = event.name;
 
-    if      (eventName == "m8f_tl_init_trade")  { _tradeManager.startTradeForPlayerAndTarget(); }
-    else if (eventName == "m8f_tl_end_trade")   { _tradeManager.endTrade(); }
-    else if (eventName == "m8f_tl_transaction")
-    {
-      _tradeManager.makeTransaction( _tradeView.isLeftSelected()
-                                   , _tradeView.getLeftSelectedIndex()
-                                   , _tradeView.getRightSelectedIndex()
-                                   );
-    }
+    if      (eventName == "m8f_tl_init_trade" ) { startTrade();      }
+    else if (eventName == "m8f_tl_end_trade"  ) { endTrade();        }
+    else if (eventName == "m8f_tl_transaction") { makeTransaction(); }
 
     self.IsUiProcessor = _tradeManager.IsStarted();
   }
@@ -64,6 +71,16 @@ class m8f_tl_KeyboardHandler : EventHandler
     if (!_tradeManager.isStarted()) { return; }
 
     _tradeView.show();
+  }
+
+  // private:
+
+  void makeTransaction()
+  {
+    _tradeManager.makeTransaction( _tradeView.isLeftSelected()
+                                 , _tradeView.getLeftSelectedIndex()
+                                 , _tradeView.getRightSelectedIndex()
+                                 );
   }
 
   // private attribute section /////////////////////////////////////////////////

@@ -4,7 +4,10 @@ class m8f_tl_DoomPriceTable : m8f_tl_CPT
 
   m8f_tl_DoomPriceTable init()
   {
+    // Doom
     let clipPriceTable = new("m8f_tl_PriceTable");
+    push("Clip", clipPriceTable);
+
     clipPriceTable.push("RocketLauncher", 200);
     clipPriceTable.push("Chaingun",       100);
     clipPriceTable.push("BasicArmor",       1);
@@ -15,7 +18,14 @@ class m8f_tl_DoomPriceTable : m8f_tl_CPT
     clipPriceTable.push("PlasmaRifle",    300);
     clipPriceTable.push("Chainsaw",       180);
 
-    push("Clip", clipPriceTable);
+    // Heretic
+    let goldPriceTable = new("m8f_tl_PriceTable");
+    push("GoldWandAmmo", goldPriceTable);
+
+    goldPriceTable.push("ArtiInvisibility", 200);
+    goldPriceTable.push("ArtiTomeOfPower",  100);
+    goldPriceTable.push("ArtiTimeBomb",       1);
+    goldPriceTable.push("SuperMap",          15);
 
     return self;
   }
