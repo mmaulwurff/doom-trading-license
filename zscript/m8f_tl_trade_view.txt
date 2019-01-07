@@ -20,7 +20,8 @@ class m8f_tl_TradeView
   const leftTraderX  = targetWidth / 4;
   const rightTraderX = targetWidth / 4 * 3;
 
-  const listWidthHalf = targetWidth / 4 - 20;
+  const listWidthHalf = targetWidth / 4 - 15;
+  const lineHeight    = 35;
 
   m8f_tl_TradeView init(m8f_tl_TradeManager tradeManager)
   {
@@ -113,7 +114,6 @@ class m8f_tl_TradeView
   {
     double titleY     = namesY;
     Font   f          = SmallFont;
-    double lineHeight = f.GetHeight() * 1.2;
 
     drawTextCenter( trader.getName()
                   , namesColor
@@ -171,9 +171,16 @@ class m8f_tl_TradeView
       string itemString = String.Format("%s%s", item.GetTag(), amount);
       string itemPrice  = String.Format("%d", price);
 
+      Screen.DrawTexture(item.icon
+                     , false
+                     , x - listWidthHalf
+                     , y - 14 + f.GetHeight() / 2
+                     , DTA_VirtualWidth  , screenSize.width
+                     , DTA_VirtualHeight , screenSize.height
+                     );
       Screen.DrawText( f
                      , color
-                     , x - listWidthHalf
+                     , x - listWidthHalf + 30
                      , y
                      , itemString
                      , DTA_VirtualWidth  , screenSize.width

@@ -22,10 +22,12 @@ class m8f_tl_DoomPriceTable : m8f_tl_CPT
     let goldPriceTable = new("m8f_tl_PriceTable");
     push("GoldWandAmmo", goldPriceTable);
 
-    goldPriceTable.push("ArtiInvisibility", 200);
-    goldPriceTable.push("ArtiTomeOfPower",  100);
-    goldPriceTable.push("ArtiTimeBomb",       1);
-    goldPriceTable.push("SuperMap",          15);
+    goldPriceTable.push("ArtiInvisibility",  200);
+    goldPriceTable.push("ArtiTomeOfPower",   100);
+    goldPriceTable.push("ArtiTimeBomb",        1);
+    goldPriceTable.push("ArtiFly",             1);
+    goldPriceTable.push("ArtiInvulnerability", 1);
+    goldPriceTable.push("ArtiTorch",           1);
 
     return self;
   }
