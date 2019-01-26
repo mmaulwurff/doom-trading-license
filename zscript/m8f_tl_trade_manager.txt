@@ -68,48 +68,36 @@ class m8f_tl_TradeManager play
 
   void makeTransaction(bool isLeftToRight, int leftIndex, int rightIndex)
   {
-    Actor seller;
-    Actor buyer;
-    Actor item;
-    bool  buyerIsInfiniteMoney;
-    if (isLeftToRight)
-    {
-      if (!(0 <= leftIndex && leftIndex < _leftTrader.getItemsNumber())) { return; }
+    m8f_tl_Trader seller;
+    m8f_tl_Trader buyer;
+    int           index;
 
-      seller = _leftTrader.getActor();
-      buyer  = _rightTrader.getActor();
-      buyerIsInfiniteMoney = _rightTrader.isInfiniteMoney();
-      item   = _leftTrader.getItem(leftIndex);
-    }
-    else
-    {
-      if (!(0 <= rightIndex && rightIndex < _rightTrader.getItemsNumber())) { return; }
+    if (isLeftToRight) { index = leftIndex;  seller = _leftTrader;  buyer = _rightTrader; }
+    else               { index = rightIndex; seller = _rightTrader; buyer = _leftTrader;  }
 
-      seller = _rightTrader.getActor();
-      buyer  = _leftTrader.getACtor();
-      buyerIsInfiniteMoney = _leftTrader.isInfiniteMoney();
-      item   = _rightTrader.getItem(rightIndex);
-    }
+    if (!(0 <= index && index < seller.getItemsNumber())) { return; }
 
-    string className = item.GetClassName();
-    int    price     = _currencyPriceTable.getPrice(_currency, className);
-    if (buyer.CountInv(_currency) < price && !buyerIsInfiniteMoney)
+    bool   buyerIsInfiniteMoney = buyer.isInfiniteMoney();
+    Actor  item        = seller.getItem(index);
+    string className   = item.GetClassName();
+    int    price       = seller.myPrice(_currencyPriceTable.getPrice(_currency, className));
+    Actor  buyerActor  = buyer.GetActor();
+    Actor  sellerActor = seller.GetActor();
+
+    if (buyerActor.CountInv(_currency) < price && !buyerIsInfiniteMoney)
     {
       console.printf("Not enough %s!", _currency);
       return;
     }
 
-    seller.TakeInventory(className, 1);
-    buyer.GiveInventory (className, 1);
+    sellerActor.TakeInventory(className, 1);
+    buyerActor .GiveInventory(className, 1);
 
-    seller.GiveInventory(_currency, price);
-    if (!buyerIsInfiniteMoney)
-    {
-      buyer.TakeInventory(_currency, price);
-    }
+    sellerActor.GiveInventory(_currency, price);
+    if (!buyerIsInfiniteMoney) { buyerActor.TakeInventory(_currency, price); }
 
-    _leftTrader.refreshItemList();
-    _rightTrader.refreshItemList();
+    seller.refreshItemList();
+    buyer .refreshItemList();
   }
 
   // private: //////////////////////////////////////////////////////////////////

@@ -10,12 +10,13 @@ class m8f_tl_DoomTradeSetup : EventHandler
     string doomCurrency = "Clip";
     string hereCurrency = "GoldWandAmmo";
     double priceFactor  = 1.0;
+    double greedyPriceFactor = 2.0;
 
     if      (thing is "DoomPlayer")    { MakeTrader(thing, doomCurrency, priceFactor, false); }
     else if (thing is "HereticPlayer") { MakeTrader(thing, hereCurrency, priceFactor, false); }
     else if (thing is "DoomImp")
     {
-      MakeTrader(thing, doomCurrency, priceFactor, true );
+      MakeTrader(thing, doomCurrency, greedyPriceFactor, true );
       thing.GiveInventory("Pistol",       1);
       thing.GiveInventory("Shotgun",      1);
       thing.GiveInventory("SuperShotgun", 1);
@@ -24,7 +25,7 @@ class m8f_tl_DoomTradeSetup : EventHandler
     }
     else if (thing is "Mummy")
     {
-      MakeTrader(thing, hereCurrency, priceFactor, true );
+      MakeTrader(thing, hereCurrency, greedyPriceFactor, true );
       thing.GiveInventory("ArtiInvisibility", 1);
       thing.GiveInventory("ArtiTomeOfPower",  1);
       thing.GiveInventory("ArtiTimeBomb",     1);

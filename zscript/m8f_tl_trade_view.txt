@@ -186,7 +186,7 @@ class m8f_tl_TradeView
       let    item       = trader.getItem(i);
       int    color      = (i == selectedIndex && isActive) ? itemsColorSelected : itemsColor;
       string amount     = (item.amount == 1) ? "" : String.Format(" (x%d)", item.amount);
-      int    price      = _tradeManager.getPrice(item);
+      int    price      = trader.myPrice(_tradeManager.getPrice(item));
       string itemString = String.Format("%s%s", item.GetTag(), amount);
       string itemPrice  = String.Format("%d", price);
 

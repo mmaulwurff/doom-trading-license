@@ -32,6 +32,8 @@ class m8f_tl_Trader
 
   Actor getActor() const { return _trader; }
 
+  double myPrice(double originalPrice) { return originalPrice * _traderInfo.getPriceFactor(); }
+
   // control section ///////////////////////////////////////////////////////////
 
   void refreshItemList()
