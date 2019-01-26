@@ -6,11 +6,13 @@ class m8f_tl_KeyboardHandler : EventHandler
   void startTrade()
   {
     _tradeManager.startTradeForPlayerAndTarget();
+    setUiState();
   }
 
   void endTrade()
   {
     _tradeManager.endTrade();
+    setUiState();
   }
 
   // public: EventHandler
@@ -29,8 +31,6 @@ class m8f_tl_KeyboardHandler : EventHandler
     if      (eventName == "m8f_tl_init_trade" ) { startTrade();      }
     else if (eventName == "m8f_tl_end_trade"  ) { endTrade();        }
     else if (eventName == "m8f_tl_transaction") { makeTransaction(); }
-
-    self.IsUiProcessor = _tradeManager.IsStarted();
   }
 
   override bool UiProcess(UiEvent event)
@@ -82,6 +82,11 @@ class m8f_tl_KeyboardHandler : EventHandler
                                  , _tradeView.getRightSelectedIndex()
                                  );
     _tradeView.updateView();
+  }
+
+  void setUiState()
+  {
+    self.IsUiProcessor = _tradeManager.IsStarted();
   }
 
   // private attribute section /////////////////////////////////////////////////

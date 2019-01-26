@@ -2,6 +2,8 @@
 
 name=trading-license
 
+acc source/$name.acs acs/$name.o \
+&& \
 rm -f $name.pk3 \
 && \
 git log --date=short --pretty=format:"-%d %ad %s%n" | \
@@ -14,6 +16,8 @@ git log --date=short --pretty=format:"-%d %ad %s%n" | \
     > changelog.txt \
 && \
 zip $name.pk3 \
+    acs/$name.o \
+    source/$name.acs \
     zscript/*.txt \
     *.txt \
     *.md \
@@ -21,7 +25,7 @@ zip $name.pk3 \
 && \
 cp $name.pk3 $name-$(git describe --abbrev=0 --tags).pk3 \
 && \
-~/Documents/src/gzdoom-build/gzdoom \
+gzdoom \
        -iwad ~/Programs/Games/wads/doom/HERETIC.WAD \
        -file \
        $name.pk3 \

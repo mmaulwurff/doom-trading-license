@@ -12,3 +12,5 @@ version "3.2.0"
 #include "zscript/m8f_tl_event_handler.txt"
 
 #include "zscript/m8f_tl_doom_trade_setup.txt"
+
+#include "zscript/m8f_tl_acs_helper.txt"
